@@ -8,55 +8,127 @@
 #include <windows.h>
 #include <time.h>
 
-int get_board_status(){
+#define Game_Success   16
 
-}
-void add_random(){
+int board[4][4];
+int game_statu; // 游戏状态，2表示游戏成功 1表示游戏失败，0表示正常
 
+int count_board()
+{ //查找还有多少个空位
+	int row, column, cnt = 0;
+	for (row = 0; row < 4; row++)
+	{
+		for (column = 0; column < 4; column++)
+		{
+			if (board[row][column] == 0)
+				cnt++;
+		}
+	}
+	return cnt;
 }
-void clear_screen() {
+void add_random()
+{
+	srand((unsigned)(time(NULL)));
+	int availableSquares = count_board();
+	int index = rand() % availableSquares; // 找一个空位放数字
+	int row, column;
+	for (row = 0; row < 4; row++)
+	{
+		for (column = 0; column < 4; column++)
+		{
+			if (board[row][column] == 0)
+			{
+				if (index == 0)
+				{
+					if (rand() % 10 == 0)
+					{
+						board[row][column] = 4;
+					}
+					else
+					{
+						board[row][column] = 2;
+					}
+					return;
+				}
+			}
+			else
+			{
+				index--;
+			}
+		}
+	}
+}
+void clear_screen()
+{
 	// 隐藏光标并清理窗口文字
 	COORD pos = {0, 0};
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 	CONSOLE_CURSOR_INFO info = {1, 0};
 	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
 }
-int check_game_over(){
-
+int game_judge()
+{
+	int i;
+	for (i = 0; i < 4; i++)
+	{
+		int j;
+		for (j = 0; j < 4; j++)
+		{
+			if (board[i][j] == Game_Success)
+			{
+				game_statu = 2;
+				return;
+			}
+		}
+	}
+	for (i = 0; i < 4; ++i)
+	{
+		int j;
+		for (j = 0; j < 3; ++j)
+		{
+			if (board[i][j] == board[i][j + 1] || board[j][i] == board[j + 1][i])
+			{
+				game_statu = 0;
+				return;
+			}
+		}
+	}
+	game_statu = 1;
 }
-void draw_game_surface(){
-
+void show_game_surface()
+{
 }
-int restart_game(){
-
+int restart_game()
+{
 }
-void move_left(){
-
+void move_left()
+{
 }
-void move_right(){
-
+void move_right()
+{
 }
-void move_up(){
-
+void move_up()
+{
 }
-void move_down(){
-
+void move_down()
+{
 }
-int game_process(){//保持键盘处在获取键位状态并实时反馈
-	
+int game_process()
+{ //保持键盘处在获取键位状态并实时反馈
 }
-void load_game(){
-
+void load_game()
+{
 }
-void release_game(int signal) {
+void release_game(int signal)
+{
 	system("cls");
 	CONSOLE_CURSOR_INFO info = {1, 1};
 	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
 	exit(0);
 }
-int main(){
-	
-} 
+int main()
+{
+}
 
 /*
 reference:
@@ -64,5 +136,6 @@ reference:
 https://blog.csdn.net/u013521296/article/details/77103697
 [2]隐藏光标函数
 https://blog.csdn.net/qq_17155501/article/details/82939244
-
+[3]C语言实现2048游戏（Windows版）(借鉴了棋盘的格式)
+https://blog.csdn.net/qq_44275213/article/details/110052926
 */
