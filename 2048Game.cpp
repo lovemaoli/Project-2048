@@ -7,15 +7,17 @@
 #include <conio.h>
 #include <windows.h>
 #include <time.h>
+#include <string.h>
 
 #define Game_Success 16
+#define Game_Start 1
 
 int board[4][4];
 int game_statu; // 游戏状态，2表示游戏成功 1表示游戏失败，0表示正常
 int score;
 int record;
 int exit;
-
+//游戏需求部分
 int count_board()
 { //查找还有多少个空位
 	int row, column, cnt = 0;
@@ -63,6 +65,89 @@ void add_random()
 		}
 	}
 }
+void rotate_board()
+{
+	int i, j, tmp;
+	for (i = 0; i < 2; i++)
+	{
+		for (j = i; j < 3 ‐ i; j++)
+		{
+			tmp = board[i][j];
+			board[i][j] = board[j][3 ‐ i];
+			board[j][3 ‐ i] = board[3 ‐ i][3 ‐ j];
+			board[3 - i][3 - j] = board[3 - j][i];
+			board[3 - j][i] = tmp;
+		}
+	}
+}
+void move_left() //先移动 移动后记得加方块以及刷新界面！
+{
+	int row, column, target;
+	for (row = 0; row < 4; row++)
+	{
+		for (column = 1, target = 0; column < 4; column++)
+		{
+			if (board[row][column] > 0)
+			{
+				if (board[row][target] == board[row][column])
+				{ //合并方块
+					score += board[row][target++] *= 2;
+					board[row][column] = 0;
+				}
+				else if (board[row][target] == 0)
+				{ //移动方块
+					board[row][target] = board[row][column];
+					board[row][column] = 0;
+				}
+				else
+				{
+					board[row][++target] = board[row][column];
+					if (column != target)
+					{
+						/* 判断j项和k项是否原先就挨在一起，若不是则把j项赋值为空（值为0） */
+						board[row][column] = 0;
+					}
+				}
+			}
+		}
+	}
+}
+void move_right()
+{
+	rotate_board();
+	rotate_board();
+	move_left();
+	rotate_board();
+	rotate_board();
+}
+void move_up()
+{
+	rotate_board();
+	rotate_board();
+	rotate_board();
+	move_left();
+	rotate_board();
+}
+void move_down()
+{
+	rotate_board();
+	move_left();
+	rotate_board();
+	rotate_board();
+	rotate_board();
+}
+
+//用户需求部分
+void update_record()
+{
+	record = score;
+	FILE *fp = fopen(config_path, "w");
+	if (fp)
+	{
+		fwrite(&record, sizeof(record), 1, fp);
+		fclose(fp);
+	}
+}
 void clear_screen()
 {
 	// 隐藏光标并清理窗口文字
@@ -98,10 +183,9 @@ int game_judge()
 void show_game_surface()
 {
 	clear_screen();
-
 	printf("\n\n");
-	printf("                                    2048\n");
-	printf("                            当前得分: %05d     最佳战绩: %06d\n", score, record);
+	printf("                                         2048\n");
+	printf("                            当前得分: %05d     最佳战绩: %05d\n", score, record);
 	printf("               **************************************************");
 	printf("\n\n                             ┌────┬────┬────┬────┐\n");
 	int row, column;
@@ -111,7 +195,7 @@ void show_game_surface()
 		for (column = 0; column < 4; column++)
 		{
 			if (board[row][column] != 0)
-			{
+			{ //处理各数字间距
 				if (board[row][column] < 10)
 				{
 					printf("  %d │", board[row][column]);
@@ -157,11 +241,15 @@ void show_game_surface()
 	{
 		printf("\n                               确定退出吗? [Y/N]:");
 	}
-
-	fflush(0);
+	if (score > record)
+	{
+		update_record();
+	}
+	// fflush(0);
 }
 int restart_game()
 {
+	memset(board, 0, 16);
 	score = 0;
 	game_statu = 0;
 	exit = 0;
@@ -169,87 +257,82 @@ int restart_game()
 	add_random();
 	show_game_surface();
 }
-//先移动 移动后记得加方块以及刷新界面！
-void move_left()
-{
-	int row, column, target;
-	for (row = 0; row < 4; row++)
-	{
-		for (column = 1, target = 0; column < 4; column++)
-		{
-			if (board[row][column] > 0)
-			{
-				if (board[row][target] == board[row][column])
-				{ //合并方块
-					score += board[row][target++] *= 2;
-					board[row][column] = 0;
-				}
-				else if (board[row][target] == 0)
-				{ //移动方块
-					board[row][target] = board[row][column];
-					board[row][column] = 0;
-				}
-				else
-				{
-					board[row][++target] = board[row][column];
-					if (column != target)
-					{
-						/* 判断j项和k项是否原先就挨在一起，若不是则把j项赋值为空（值为0） */
-						board[row][column] = 0;
-					}
-				}
-			}
-		}
-	}
-}
-void rotate_board()
-{
-	int i, j, n = SIZE;
-	int tmp;
-	for (i = 0; i < n / 2; i++)
-	{
-		for (j = i; j < n ‐ i ‐ 1; j++)
-		{
-			tmp = board[i][j];
-			board[i][j] = board[j][n ‐ i ‐ 1];
-			board[j][n ‐ i ‐ 1] = board[n ‐ i ‐ 1][n ‐ j ‐ 1];
-			board[n ‐ i ‐ 1][n ‐ j ‐ 1] = board[n ‐ j ‐ 1][i];
-			board[n ‐ j ‐ 1][i] = tmp;
-		}
-	}
-}
-void move_right()
-{
-}
-void move_up()
-{
-}
-void move_down()
-{
-}
-int game_process()
-{ //保持键盘处在获取键位状态并实时反馈
-}
-void load_game()
-{
-}
-void release_game(int signal)
+void release_game()
 {
 	system("cls");
 	CONSOLE_CURSOR_INFO info = {1, 1};
 	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
 	exit(0);
 }
-int main()
+int game_process() //保持键盘处在获取键位状态并实时反馈
 {
+	while (Game_Start)
+	{
+		int command = getch();
+		if (exit)
+		{
+			if (command == 'y' || command == 'Y')
+			{
+				clear_screen();
+				release_game();
+				exit();
+			}
+			else if (command == 'n' || command == 'N')
+			{
+				exit = 0;
+				refresh_show();
+				continue;
+			}
+			continue;
+		}
+		if (game_statu)
+		{
+			if (command == 'y' || command == 'Y')
+			{
+				restart_game();
+				continue;
+			}
+			else if (command == 'n' || command == 'N')
+			{
+				release_game();
+				exit();
+			}
+			continue;
+		}
+		if (command == 75)
+			move_left();
+		if (command == 80)
+			move_down();
+		if (command == 72)
+			move_up();
+		if (command == 77)
+			move_right();
+		if (command == 27)
+		{
+			exit = 1;
+			show_game_surface();
+		}
+	}
+}
+
+void load_game()
+{
+}
+
+int main(void)
+{
+	load_game();
+	game_process();
+	return 0;
 }
 
 /*
 reference:
-[1]C语言使用getch()读取方向键
+[1]棋子合并与翻转棋盘的实现——黄指导的课件
+[2]C语言使用getch()读取方向键
 https://blog.csdn.net/u013521296/article/details/77103697
-[2]隐藏光标函数
+[3]隐藏光标函数
 https://blog.csdn.net/qq_17155501/article/details/82939244
-[3]C语言实现2048游戏（Windows版）(借鉴了棋盘的格式)
+[4]棋盘界面的完善及思路拓展：C语言实现2048游戏
 https://blog.csdn.net/qq_44275213/article/details/110052926
 */
