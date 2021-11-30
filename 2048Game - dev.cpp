@@ -12,6 +12,7 @@
 #define Game_Success 2048
 #define Game_Start 1
 
+FILE *mem;
 int board[4][4];
 int game_statu; // 游戏状态，2表示游戏成功 1表示游戏失败，0表示正常
 int score;
@@ -46,24 +47,26 @@ void add_random() {
 						board[row][column] = 2;
 					}
 					return;
-				} else index--;
+				} else
+					index--;
 			}
 		}
 	}
 }
 void rotate_board() {
-	int i,j, tmp;
-	for (i=0; i < 2; i++) {
-		for (j=i; j < 3-i; j++) {
-			tmp =board[i][j];
-			board[i][j]=board[j][3-i];
-			board[j][3- i]=board[3- i][3- j];
-			board[3 - i][3 - j]=board[3 - j][i];
-			board[3 - j][i]=tmp;
+	int i, j, tmp;
+	for (i = 0; i < 2; i++) {
+		for (j = i; j < 3 - i; j++) {
+			tmp = board[i][j];
+			board[i][j] = board[j][3 - i];
+			board[j][3 - i] = board[3 - i][3 - j];
+			board[3 - i][3 - j] = board[3 - j][i];
+			board[3 - j][i] = tmp;
 		}
 	}
 }
-void move_left() { //先移动 移动后记得加方块以及刷新界面！
+void move_left() {
+	//先移动 移动后记得加方块以及刷新界面！
 	int row, column, target;
 	for (row = 0; row < 4; row++) {
 		for (column = 1, target = 0; column < 4; column++) {
@@ -110,7 +113,34 @@ void move_up() {
 }
 
 //用户需求部分
-
+void save(void) {
+	if ((mem = fopen("memory.txt", "w")) == NULL) {
+		return;
+	}
+	fprintf(mem,"%d ",record);
+	int row, column;
+	for(row=0; row<4; row++) {
+		for(column=0; column<4; column++) {
+			fprintf(mem,"%d ",board[row][column]);
+		}
+	}
+	fclose(mem);
+}
+void load(void) {
+	if ((mem = fopen("memory.txt", "r")) == NULL) {
+		return;
+	}
+	fscanf(mem,"%d",&record);
+	int row, column;
+	for(row=0; row<4; row++) {
+		for(column=0; column<4; column++) {
+			int i;
+			fscanf(mem,"%d",&i);
+			board[row][column]=i;
+		}
+	}
+	fclose(mem);
+}
 void clear_screen() {
 	// 隐藏光标并清理窗口文字
 	COORD pos = {0, 0};
@@ -140,6 +170,10 @@ void game_judge() {
 }
 void show_game_surface() {
 	clear_screen();
+	if (score > record) {
+		record = score;
+		save();
+	}
 	printf("\n\n");
 	printf("                                       2048\n\n");
 	printf("                        当前得分: %05d     最佳战绩: %05d\n", score, record);
@@ -185,7 +219,7 @@ void show_game_surface() {
 	printf("\n                                                                ");
 	printf("\n                                                                ");
 	if (score > record) {
-//		update_record();
+		//		update_record();
 	}
 	// fflush(0);
 }
@@ -198,19 +232,22 @@ void restart_game() {
 	add_random();
 	show_game_surface();
 }
-int game_process() { //保持键盘处在获取键位状态并实时反馈
+int game_process() {
+	//保持键盘处在获取键位状态并实时反馈
 	while (Game_Start) {
 		int command = _getch();
 		if (game_exit) {
 			if (command == 'y' || command == 'Y') {
 				system("cls");
 				printf("\n\n");
-				printf("                                       2048\n\n");
+				printf("                                       2048（界面将在3s后关闭）\n\n");
 				printf("                        当前得分: %05d     最佳战绩: %05d\n", score, record);
 				printf("               **************************************************");
 				printf("\n\n\n\n                                      再见！     \n\n\n");
 				printf("\n\n                   *您的游戏进度已经保存，下次打开将会自动读取     \n\n\n");
 				printf("               **************************************************\n\n");
+				save();
+				Sleep(3*1000);
 				exit(0);
 			} else if (command == 'n' || command == 'N') {
 				game_exit = 0;
@@ -224,15 +261,16 @@ int game_process() { //保持键盘处在获取键位状态并实时反馈
 				restart_game();
 				continue;
 			} else if (command == 'n' || command == 'N') {
-//				release_game();
+				//				release_game();
 				system("cls");
 				printf("\n\n");
 				printf("                                       2048\n\n");
 				printf("                        当前得分: %05d     最佳战绩: %05d\n", score, record);
 				printf("               **************************************************");
 				printf("\n\n\n\n                                      再见！     \n\n\n");
-				printf("\n\n              *您的游戏进度已经保存，下次打开将会自动读取     \n\n");
+				printf("\n\n              *您的游戏分数已经保存，下次打开将会自动读取     \n\n");
 				printf("               **************************************************");
+				Sleep(3*1000);
 				exit(0);
 			}
 			continue;
@@ -245,7 +283,7 @@ int game_process() { //保持键盘处在获取键位状态并实时反馈
 			move_up();
 		if (command == 77)
 			move_right();
-		if(command==75||command==80||command==72||command==77) {
+		if (command == 75 || command == 80 || command == 72 || command == 77) {
 			add_random();
 			show_game_surface();
 		}
@@ -258,9 +296,9 @@ int game_process() { //保持键盘处在获取键位状态并实时反馈
 	}
 }
 
-
 int main(void) {
 	restart_game();
+	load();
 	show_game_surface();
 	game_process();
 	return 0;
@@ -276,6 +314,7 @@ https://blog.csdn.net/qq_17155501/article/details/82939244
 [4]棋盘界面的完善及思路拓展：C语言实现2048游戏
 https://blog.csdn.net/qq_44275213/article/details/110052926
 [5]贪吃蛇实现存档功能
-https://blog.csdn.net/baidu_30000217/article/details/53220036 
+https://blog.csdn.net/baidu_30000217/article/details/53220036
+https://www.csdn.net/tags/MtjaQg0sOTIwMTMtYmxvZwO0O0OO0O0O.html
 */
 
