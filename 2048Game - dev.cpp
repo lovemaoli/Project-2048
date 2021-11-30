@@ -13,13 +13,13 @@
 #define Game_Start 1
 
 int board[4][4];
-int game_statu; // æ¸¸æˆçŠ¶æ€ï¼Œ2è¡¨ç¤ºæ¸¸æˆæˆåŠŸ 1è¡¨ç¤ºæ¸¸æˆå¤±è´¥ï¼Œ0è¡¨ç¤ºæ­£å¸¸
+int game_statu; // ÓÎÏ·×´Ì¬£¬2±íÊ¾ÓÎÏ·³É¹¦ 1±íÊ¾ÓÎÏ·Ê§°Ü£¬0±íÊ¾Õı³£
 int score;
 int record;
 int game_exit;
-//æ¸¸æˆéœ€æ±‚éƒ¨åˆ†
+//ÓÎÏ·ĞèÇó²¿·Ö
 int count_board()
-{ //æŸ¥æ‰¾è¿˜æœ‰å¤šå°‘ä¸ªç©ºä½
+{ //²éÕÒ»¹ÓĞ¶àÉÙ¸ö¿ÕÎ»
 	int row, column, cnt = 0;
 	for (row = 0; row < 4; row++)
 	{
@@ -37,7 +37,7 @@ void add_random()
 	int availableSquares = count_board();
 	if (!availableSquares)
 		return;
-	int index = rand() % availableSquares; // æ‰¾ä¸€ä¸ªç©ºä½æ”¾æ•°å­—
+	int index = rand() % availableSquares; // ÕÒÒ»¸ö¿ÕÎ»·ÅÊı×Ö
 	int row, column;
 	for (row = 0; row < 4; row++)
 	{
@@ -76,7 +76,7 @@ void rotate_board()
 		}
 	}
 }
-void move_left() //å…ˆç§»åŠ¨ ç§»åŠ¨åè®°å¾—åŠ æ–¹å—ä»¥åŠåˆ·æ–°ç•Œé¢ï¼
+void move_left() //ÏÈÒÆ¶¯ ÒÆ¶¯ºó¼ÇµÃ¼Ó·½¿éÒÔ¼°Ë¢ĞÂ½çÃæ£¡
 {
 	int row, column, target;
 	for (row = 0; row < 4; row++)
@@ -86,12 +86,12 @@ void move_left() //å…ˆç§»åŠ¨ ç§»åŠ¨åè®°å¾—åŠ æ–¹å—ä»¥åŠåˆ·æ–°ç•Œé¢ï¼
 			if (board[row][column] > 0)
 			{
 				if (board[row][target] == board[row][column])
-				{ //åˆå¹¶æ–¹å—
+				{ //ºÏ²¢·½¿é
 					score += board[row][target++] *= 2;
 					board[row][column] = 0;
 				}
 				else if (board[row][target] == 0)
-				{ //ç§»åŠ¨æ–¹å—
+				{ //ÒÆ¶¯·½¿é
 					board[row][target] = board[row][column];
 					board[row][column] = 0;
 				}
@@ -100,7 +100,7 @@ void move_left() //å…ˆç§»åŠ¨ ç§»åŠ¨åè®°å¾—åŠ æ–¹å—ä»¥åŠåˆ·æ–°ç•Œé¢ï¼
 					board[row][++target] = board[row][column];
 					if (column != target)
 					{
-						/* åˆ¤æ–­jé¡¹å’Œké¡¹æ˜¯å¦åŸå…ˆå°±æŒ¨åœ¨ä¸€èµ·ï¼Œè‹¥ä¸æ˜¯åˆ™æŠŠjé¡¹èµ‹å€¼ä¸ºç©ºï¼ˆå€¼ä¸º0ï¼‰ */
+						/* ÅĞ¶ÏjÏîºÍkÏîÊÇ·ñÔ­ÏÈ¾Í°¤ÔÚÒ»Æğ£¬Èô²»ÊÇÔò°ÑjÏî¸³ÖµÎª¿Õ£¨ÖµÎª0£© */
 						board[row][column] = 0;
 					}
 				}
@@ -133,7 +133,7 @@ void move_up()
 	rotate_board();
 }
 
-//ç”¨æˆ·éœ€æ±‚éƒ¨åˆ†
+//ÓÃ»§ĞèÇó²¿·Ö
 //void update_record()
 //{
 //	record = score;
@@ -146,7 +146,7 @@ void move_up()
 //}
 void clear_screen()
 {
-	// éšè—å…‰æ ‡å¹¶æ¸…ç†çª—å£æ–‡å­—
+	// Òş²Ø¹â±ê²¢ÇåÀí´°¿ÚÎÄ×Ö
 	COORD pos = {0, 0};
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 	CONSOLE_CURSOR_INFO info = {1, 0};
@@ -160,7 +160,7 @@ void game_judge()
 		for (column = 0; column < 4; column++)
 		{
 			if (board[row][column] == Game_Success)
-				game_statu = 2; //æ¸¸æˆèƒœåˆ©
+				game_statu = 2; //ÓÎÏ·Ê¤Àû
 			return;
 		}
 	}
@@ -169,11 +169,11 @@ void game_judge()
 		for (column = 0; column < 4; column++)
 		{
 			if (board[row][column] == board[row][column + 1] || board[column][row] == board[column + 1][row])
-				game_statu = 0; //æ¸¸æˆå°šæœªç»“æŸ
+				game_statu = 0; //ÓÎÏ·ÉĞÎ´½áÊø
 			return;
 		}
 	}
-	game_statu = 1; //æ¸¸æˆå¤±è´¥
+	game_statu = 1; //ÓÎÏ·Ê§°Ü
 	return;
 }
 void show_game_surface()
@@ -181,61 +181,61 @@ void show_game_surface()
 	clear_screen();
 	printf("\n\n");
 	printf("                                         2048\n");
-	printf("                            å½“å‰å¾—åˆ†: %05d     æœ€ä½³æˆ˜ç»©: %05d\n", score, record);
+	printf("                            µ±Ç°µÃ·Ö: %05d     ×î¼ÑÕ½¼¨: %05d\n", score, record);
 	printf("               **************************************************");
-	printf("\n\n                             â”Œâ”€â”€â”€â”€â”¬â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”\n");
+	printf("\n\n                             ©°©¤©¤©¤©¤©Ğ©¤©¤©¤©¤©Ğ©¤©¤©¤©¤©Ğ©¤©¤©¤©¤©´\n");
 	int row, column;
 	for (row = 0; row < 4; row++)
 	{
-		printf("                             â”‚");
+		printf("                             ©¦");
 		for (column = 0; column < 4; column++)
 		{
 			if (board[row][column] != 0)
-			{ //å¤„ç†å„æ•°å­—é—´è·
+			{ //´¦Àí¸÷Êı×Ö¼ä¾à
 				if (board[row][column] < 10)
 				{
-					printf("  %d â”‚", board[row][column]);
+					printf("  %d ©¦", board[row][column]);
 				}
 				else if (board[row][column] < 100)
 				{
-					printf(" %d â”‚", board[row][column]);
+					printf(" %d ©¦", board[row][column]);
 				}
 				else if (board[row][column] < 1000)
 				{
-					printf(" %dâ”‚", board[row][column]);
+					printf(" %d©¦", board[row][column]);
 				}
 				else
 				{
-					printf("%4dâ”‚", board[row][column]);
+					printf("%4d©¦", board[row][column]);
 				}
 			}
 			else
-				printf("    â”‚");
+				printf("    ©¦");
 		}
 		if (row < 3)
 		{
-			printf("\n                             â”œâ”€â”€â”€â”€â”¼â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”¤\n");
+			printf("\n                             ©À©¤©¤©¤©¤©à©¤©¤©¤©¤©à©¤©¤©¤©¤©à©¤©¤©¤©¤©È\n");
 		}
 		else
 		{
-			printf("\n                             â””â”€â”€â”€â”€â”´â”€â”€â”€â”€â”´â”€â”€â”€â”€â”´â”€â”€â”€â”€â”˜\n");
+			printf("\n                             ©¸©¤©¤©¤©¤©Ø©¤©¤©¤©¤©Ø©¤©¤©¤©¤©Ø©¤©¤©¤©¤©¼\n");
 		}
 	}
 	printf("\n");
 	printf("               **************************************************\n");
-	printf("                 æŒ‰é”®ï¼š[â†‘][â†“][â†][â†’] ç§»åŠ¨æ•°å­—, [R]é‡ç½® [ESC] é€€å‡º");
+	printf("                 °´¼ü£º[¡ü][¡ı][¡û][¡ú] ÒÆ¶¯Êı×Ö, [R]ÖØÖÃ [ESC] ÍË³ö");
 	game_judge();
 	if (game_statu == 2)
 	{
-		printf("\n                    Congratulations! æƒ³è¦å†ç©ä¸€éå—? [Y/N]:     ");
+		printf("\n                    Congratulations! ÏëÒªÔÙÍæÒ»±éÂğ? [Y/N]:     ");
 	}
 	if (game_statu == 1)
 	{
-		printf("\n                      GAME OVER! æƒ³è¦å†ç©ä¸€éå—? [Y/N]:     ");
+		printf("\n                      GAME OVER! ÏëÒªÔÙÍæÒ»±éÂğ? [Y/N]:     ");
 	}
 	if (game_exit)
 	{
-		printf("\n                               ç¡®å®šé€€å‡ºå—? [Y/N]:");
+		printf("\n                               È·¶¨ÍË³öÂğ? [Y/N]:");
 	}
 	if (score > record)
 	{
@@ -260,7 +260,7 @@ void release_game()
 	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
 	exit(0);
 }
-int game_process() //ä¿æŒé”®ç›˜å¤„åœ¨è·å–é”®ä½çŠ¶æ€å¹¶å®æ—¶åé¦ˆ
+int game_process() //±£³Ö¼üÅÌ´¦ÔÚ»ñÈ¡¼üÎ»×´Ì¬²¢ÊµÊ±·´À¡
 {
 	while (Game_Start)
 	{
@@ -332,11 +332,12 @@ int main(void)
 
 /*
 reference:
-[1]æ£‹å­åˆå¹¶ä¸ç¿»è½¬æ£‹ç›˜çš„å®ç°â€”â€”é»„æŒ‡å¯¼çš„è¯¾ä»¶
-[2]Cè¯­è¨€ä½¿ç”¨getch()è¯»å–æ–¹å‘é”®
+[1]Æå×ÓºÏ²¢Óë·­×ªÆåÅÌµÄÊµÏÖ¡ª¡ª»ÆÖ¸µ¼µÄ¿Î¼ş
+[2]CÓïÑÔÊ¹ÓÃgetch()¶ÁÈ¡·½Ïò¼ü
 https://blog.csdn.net/u013521296/article/details/77103697
-[3]éšè—å…‰æ ‡å‡½æ•°
+[3]Òş²Ø¹â±êº¯Êı
 https://blog.csdn.net/qq_17155501/article/details/82939244
-[4]æ£‹ç›˜ç•Œé¢çš„å®Œå–„åŠæ€è·¯æ‹“å±•ï¼šCè¯­è¨€å®ç°2048æ¸¸æˆ
+[4]ÆåÅÌ½çÃæµÄÍêÉÆ¼°Ë¼Â·ÍØÕ¹£ºCÓïÑÔÊµÏÖ2048ÓÎÏ·
 https://blog.csdn.net/qq_44275213/article/details/110052926
 */
+
