@@ -10,3 +10,5 @@
 解决：应该先初始化 后读入存档
 5.最佳战绩和当前分数不匹配
 解决：将更新分数存在show_game_surface()中而不是game_process()中
+6.判断失败错误
+count_board没加括号

@@ -82,7 +82,6 @@ void move_left() {
 				} else {
 					board[row][++target] = board[row][column];
 					if (column != target) {
-						/* 判断j项和k项是否原先就挨在一起，若不是则把j项赋值为空（值为0） */
 						board[row][column] = 0;
 					}
 				}
@@ -158,10 +157,27 @@ void game_judge() {
 			}
 		}
 	}
-	for (row = 0; row < 4; row++) {
-		for (column = 0; column < 4; column++) {
-			if (board[row][column] == board[row][column + 1] || board[column][row] == board[column + 1][row])
+	if(count_board()) {
+		game_statu = 0;
+		return;
+	}
+	for (row = 0; row < 3; row++) {
+		for (column = 0; column < 3; column++) {
+			if (board[row][column] == board[row][column + 1] || board[row][column] == board[row + 1][column]) {
 				game_statu = 0; //游戏尚未结束
+				return;
+			}
+		}
+	}
+	for (column = 0; column < 3; column++) {
+		if (board[3][column] == board[3][column + 1]) {
+			game_statu = 0; //游戏尚未结束
+			return;
+		}
+	}
+	for (row = 0; row < 3; row++) {
+		if (board[row][3] == board[row + 1][3]) {
+			game_statu = 0; //游戏尚未结束
 			return;
 		}
 	}
@@ -268,7 +284,7 @@ int game_process() {
 				printf("                        当前得分: %05d     最佳战绩: %05d\n", score, record);
 				printf("               **************************************************");
 				printf("\n\n\n\n                                      再见！     \n\n\n");
-				printf("\n\n              *您的游戏分数已经保存，下次打开将会自动读取     \n\n");
+				printf("\n\n                   *您的游戏分数已经保存，下次打开将会自动读取     \n\n");
 				printf("               **************************************************");
 				Sleep(3*1000);
 				exit(0);
